@@ -682,6 +682,27 @@ suite('Editor Contrib - Line Operations', () => {
 				});
 		});
 
+		test('preserves single-line selected text when reversing whole document', function () {
+			withTestCodeEditor(
+				[
+					'alice',
+					'bob the builder',
+					'charlie',
+					'david',
+					'',
+				], {}, (editor) => {
+					const model = editor.getModel()!;
+					const reverseLinesAction = new ReverseLinesAction();
+					editor.setSelection(new Selection(2, 5, 2, 8));
+					const expectedSelectedText = 'the';
+					assert.strictEqual(model.getValueInRange(editor.getSelection()), expectedSelectedText);
+
+					executeAction(reverseLinesAction, editor);
+					assert.strictEqual(model.getValueInRange(editor.getSelection()), expectedSelectedText);
+					assertSelection(editor, new Selection(3, 5, 3, 8));
+				});
+		});
+
 		test('reverses lines within selection', function () {
 			withTestCodeEditor(
 				[
