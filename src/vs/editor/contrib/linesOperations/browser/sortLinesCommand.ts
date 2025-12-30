@@ -15,18 +15,20 @@ export class SortLinesCommand implements ICommand {
 
 	static _COLLATOR: Lazy<Intl.Collator> = safeIntl.Collator();
 
+	private readonly range: Range;
 	private readonly selection: Selection;
 	private readonly descending: boolean;
 	private selectionId: string | null;
 
-	constructor(selection: Selection, descending: boolean) {
+	constructor(range: Range, selection: Selection, descending: boolean) {
+		this.range = range;
 		this.selection = selection;
 		this.descending = descending;
 		this.selectionId = null;
 	}
 
 	public getEditOperations(model: ITextModel, builder: IEditOperationBuilder): void {
-		const op = sortLines(model, this.selection, this.descending);
+		const op = sortLines(model, this.range, this.descending);
 		if (op) {
 			builder.addEditOperation(op.range, op.text);
 		}
@@ -38,12 +40,12 @@ export class SortLinesCommand implements ICommand {
 		return helper.getTrackedSelection(this.selectionId!);
 	}
 
-	public static canRun(model: ITextModel | null, selection: Selection, descending: boolean): boolean {
+	public static canRun(model: ITextModel | null, range: Range, descending: boolean): boolean {
 		if (model === null) {
 			return false;
 		}
 
-		const data = getSortData(model, selection, descending);
+		const data = getSortData(model, range, descending);
 
 		if (!data) {
 			return false;
@@ -59,11 +61,11 @@ export class SortLinesCommand implements ICommand {
 	}
 }
 
-function getSortData(model: ITextModel, selection: Selection, descending: boolean) {
-	const startLineNumber = selection.startLineNumber;
-	let endLineNumber = selection.endLineNumber;
+function getSortData(model: ITextModel, range: Range, descending: boolean) {
+	const startLineNumber = range.startLineNumber;
+	let endLineNumber = range.endLineNumber;
 
-	if (selection.endColumn === 1) {
+	if (range.endColumn === 1) {
 		endLineNumber--;
 	}
 
@@ -98,8 +100,8 @@ function getSortData(model: ITextModel, selection: Selection, descending: boolea
 /**
  * Generate commands for sorting lines on a model.
  */
-function sortLines(model: ITextModel, selection: Selection, descending: boolean): ISingleEditOperation | null {
-	const data = getSortData(model, selection, descending);
+function sortLines(model: ITextModel, range: Range, descending: boolean): ISingleEditOperation | null {
+	const data = getSortData(model, range, descending);
 
 	if (!data) {
 		return null;

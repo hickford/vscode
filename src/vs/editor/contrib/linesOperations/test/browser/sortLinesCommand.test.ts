@@ -9,11 +9,11 @@ import { SortLinesCommand } from '../../browser/sortLinesCommand.js';
 import { testCommand } from '../../../../test/browser/testCommand.js';
 
 function testSortLinesAscendingCommand(lines: string[], selection: Selection, expectedLines: string[], expectedSelection: Selection): void {
-	testCommand(lines, null, selection, (accessor, sel) => new SortLinesCommand(sel, false), expectedLines, expectedSelection);
+	testCommand(lines, null, selection, (accessor, sel) => new SortLinesCommand(sel, sel, false), expectedLines, expectedSelection);
 }
 
 function testSortLinesDescendingCommand(lines: string[], selection: Selection, expectedLines: string[], expectedSelection: Selection): void {
-	testCommand(lines, null, selection, (accessor, sel) => new SortLinesCommand(sel, true), expectedLines, expectedSelection);
+	testCommand(lines, null, selection, (accessor, sel) => new SortLinesCommand(sel, sel, true), expectedLines, expectedSelection);
 }
 
 suite('Editor Contrib - Sort Lines Command', () => {

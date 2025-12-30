@@ -250,21 +250,22 @@ export abstract class AbstractSortLinesAction extends EditorAction {
 		}
 
 		const model = editor.getModel();
-		let selections = editor.getSelections();
-		if (selections.length === 1 && selections[0].isSingleLine()) {
+		const selections = editor.getSelections();
+		let ranges: Range[] = selections;
+		if (ranges.length === 1 && ranges[0].isSingleLine()) {
 			// Apply to whole document.
-			selections = [new Selection(1, 1, model.getLineCount(), model.getLineMaxColumn(model.getLineCount()))];
+			ranges = [model.getFullModelRange()];
 		}
 
-		for (const selection of selections) {
-			if (!SortLinesCommand.canRun(editor.getModel(), selection, this.descending)) {
+		for (const range of ranges) {
+			if (!SortLinesCommand.canRun(editor.getModel(), range, this.descending)) {
 				return;
 			}
 		}
 
 		const commands: ICommand[] = [];
 		for (let i = 0, len = selections.length; i < len; i++) {
-			commands[i] = new SortLinesCommand(selections[i], this.descending);
+			commands[i] = new SortLinesCommand(ranges[i], selections[i], this.descending);
 		}
 
 		editor.pushUndoStop();
