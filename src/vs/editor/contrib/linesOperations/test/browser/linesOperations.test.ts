@@ -126,6 +126,32 @@ suite('Editor Contrib - Line Operations', () => {
 					]);
 				});
 		});
+
+		test('preserves single-line selected text when sorting whole document', function () {
+			withTestCodeEditor(
+				[
+					'omicron',
+					'beta',
+					'alpha'
+				], {}, (editor) => {
+					const model = editor.getModel()!;
+					const sortLinesAscendingAction = new SortLinesAscendingAction();
+
+					editor.setSelection(new Selection(1, 2, 1, 7));
+					const expectedSelectedText = 'micro';
+					assert.strictEqual(model.getValueInRange(editor.getSelection()), expectedSelectedText);
+
+					executeAction(sortLinesAscendingAction, editor);
+					assert.deepStrictEqual(model.getLinesContent(), [
+						'alpha',
+						'beta',
+						'omicron'
+					]);
+
+					assertSelection(editor, new Selection(3, 2, 3, 7));
+					assert.strictEqual(model.getValueInRange(editor.getSelection()), expectedSelectedText);
+				});
+		});
 	});
 
 	suite('SortLinesDescendingAction', () => {

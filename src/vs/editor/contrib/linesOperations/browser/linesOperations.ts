@@ -251,9 +251,12 @@ export abstract class AbstractSortLinesAction extends EditorAction {
 
 		const model = editor.getModel();
 		let selections = editor.getSelections();
+		const originalSelections = selections;
+		let originalLine: string | null = null;
 		if (selections.length === 1 && selections[0].isSingleLine()) {
 			// Apply to whole document.
 			selections = [new Selection(1, 1, model.getLineCount(), model.getLineMaxColumn(model.getLineCount()))];
+			originalLine = model.getLineContent(selections[0].positionLineNumber);
 		}
 
 		for (const selection of selections) {
@@ -269,6 +272,11 @@ export abstract class AbstractSortLinesAction extends EditorAction {
 
 		editor.pushUndoStop();
 		editor.executeCommands(this.id, commands);
+		if (originalLine !== null) {
+			const newLineNumber = model.getLinesContent().findIndex((line) => line === originalLine) + 1;
+			const sel = originalSelections[0];
+			editor.setSelection(new Selection(newLineNumber, sel.selectionStartColumn, newLineNumber, sel.positionColumn));
+		}
 		editor.pushUndoStop();
 	}
 }
